@@ -15,7 +15,7 @@ bool pe_hash_database::_is_mz(FILE* stream)
 
 pe_hash_database::pe_hash_database(char* clean_database_name, char* ep_database_name, char* epshort_database_name)
 {
-	InitializeCriticalSectionAndSpinCount(&_lock, 0x00000400);
+	(void)InitializeCriticalSectionAndSpinCount(&_lock, 0x00000400);
 	EnterCriticalSection( &_lock );
 
 	// Build the full database names
@@ -569,13 +569,15 @@ bool pe_hash_database::save()
 		PrintLastError(L"Failed to open existing clean hash database..");
 	}
 
-	
 	return false;
 }
 
 pe_hash_database::~pe_hash_database(void)
 {
 	delete[] _clean_database_path;
+	delete[] _ep_database_path;
+	delete[] _epshort_database_path;
+
 	DeleteCriticalSection(&_lock);
 }
 
