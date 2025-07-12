@@ -96,6 +96,7 @@ import_library::import_library(IMAGE_IMPORT_DESCRIPTOR* descriptor, bool win64)
 	_import_by_name = NULL;
 	_library_name = NULL;
 	_thunk_entry = NULL;
+	_import_by_name_len = 0;
 }
 
 import_library::import_library(char* library_name, int ordinal, __int64 rva, bool win64)
@@ -108,6 +109,7 @@ import_library::import_library(char* library_name, int ordinal, __int64 rva, boo
 	_descriptor->Name = NULL; // Replace with rva to name upon writing
 	_descriptor->FirstThunk = rva; // PE Loader with patchup address at rva to become the address of the import, awesome!
 	_import_by_name = NULL;
+	_import_by_name_len = 0;
 	_thunk_entry = new IMAGE_THUNK_DATA64();
 
 	_library_name = new char[strlen(library_name)+1];
