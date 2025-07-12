@@ -182,8 +182,8 @@ class process_stream : stream_wrapper
 public:
 	void* base;
 
-
 	process_stream(HANDLE ph, void* base)
+		:base(NULL)
 	{
 		_long_name = NULL;
 		_short_name = NULL;
@@ -206,6 +206,7 @@ public:
 	}
 
 	process_stream(DWORD pid, module_list* modules)
+		:base(NULL)
 	{
 		_long_name = NULL;
 		_short_name = NULL;
@@ -247,6 +248,7 @@ public:
 	}
 
 	process_stream(DWORD pid, void* base, module_list* modules )
+		:base(NULL)
 	{
 		// Try to open the specified process pid
 		_long_name = NULL;
@@ -414,7 +416,7 @@ public:
 
 		SIZE_T num_read = 0;
 
-		__int64 already_read = 0;
+		SIZE_T already_read = 0;
 
 		if( opened )
 		{
