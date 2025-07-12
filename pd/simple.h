@@ -28,9 +28,18 @@ public:
 	char* output_path;
 
 	PD_OPTIONS()
+		: ImportRec(false)
+		, ForceGenHeader(false)
+		, Verbose(false)
+		, ReconstructHeaderAsDll(false)
+		, DumpChunks(false)
+		, EntryPointHash(false)
+		, ForceReconstructEntryPoint(false)
+		, NumberOfThreads(0)
+		, EntryPointOverride(0)
 	{
 		output_path = new char[1];
-		strcpy(output_path,"");
+		output_path[0] = 0;
 	}
 
 	void set_output_path( char* path )
@@ -45,9 +54,7 @@ public:
 	~PD_OPTIONS()
 	{
 		if( output_path != NULL )
-		{
 			delete[] output_path;
-		}
 	}
 };
 
