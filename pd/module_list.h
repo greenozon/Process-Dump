@@ -56,7 +56,6 @@ class module
 
 class module_list
 {
-	
 	HANDLE _ph;
 
 public:
