@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "windows.h"
+#include <windows.h>
 #include "pe_header.h"
 #include <tlhelp32.h>
 #include <cstdio>
@@ -91,8 +91,6 @@ bool get_privileges(HANDLE h_Process)
 bool ConsoleRequestingClose = false;
 BOOL WINAPI ConsoleHandler(DWORD CEvent)
 {
-	char mesg[128];
-
 	switch (CEvent)
 	{
 	case CTRL_C_EVENT:

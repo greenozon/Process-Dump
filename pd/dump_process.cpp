@@ -126,12 +126,7 @@ bool dump_process::is64()
 MBI_BASIC_INFO dump_process::get_mbi_info(unsigned __int64 address)
 {
 	_MEMORY_BASIC_INFORMATION64 mbi;
-	MBI_BASIC_INFO result;
-	result.base = 0;
-	result.end = 0;
-	result.protect = 0;
-	result.valid = false;
-	result.executable = false;
+	MBI_BASIC_INFO result{ 0 };
 
 	// Load this heap information
 	 __int64 blockSize = VirtualQueryEx(_ph, (LPCVOID)address, (PMEMORY_BASIC_INFORMATION)&mbi, sizeof(_MEMORY_BASIC_INFORMATION64));
@@ -174,7 +169,7 @@ int dump_process::get_all_hashes(unordered_set<unsigned __int64>* output_hashes,
 			maxAddress = 0xffffffffffffffff; // Not a problem for 32bit targets
 			
 			// Walk the process heaps
-			__int64 address = 0;
+			unsigned __int64 address = 0;
 			
 			// First loop to build a list of executable heaps for later use in locating loose executable heaps not associated with any modules
 			set<unsigned __int64> executable_heaps;

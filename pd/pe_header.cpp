@@ -498,7 +498,7 @@ bool pe_header::process_hash_ep()
 
 		// First load the entry point
 		SIZE_T offset = 0;
-		NMD_X86_MODE mode;
+
 		if (_parsed_pe_32)
 		{
 			offset = _header_pe32->OptionalHeader.AddressOfEntryPoint; // rva

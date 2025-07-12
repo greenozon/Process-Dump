@@ -1,9 +1,8 @@
 #pragma once
 
-#include "nmd_assembly.h"
 #include "stdafx.h"
+#include "nmd_assembly.h"
 #include <stdio.h>
-#include "windows.h"
 #include "stream_wrapper.h"
 #include <stdlib.h>
 #include "module_list.h"

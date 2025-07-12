@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdio.h>
-#include "windows.h"
+#include <windows.h>
 #include "simple.h"
 #include <tlhelp32.h>
 #include <unordered_map>

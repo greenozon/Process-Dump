@@ -229,7 +229,7 @@ bool pe_hash_database::add_folder( char* dir_name, WCHAR* filter, bool recursive
 
 					if (result != NULL)
 					{
-						for (int i = 0; i < strlen(ent->d_name); i++)
+						for (size_t i = 0; i < strlen(ent->d_name); i++)
 							result[i] = ent->d_name[i];
 						result[strlen(ent->d_name)] = 0;
 
@@ -316,7 +316,7 @@ bool pe_hash_database::remove_folder( char* dir_name, WCHAR* filter, bool recurs
 
 			if( result != NULL )
 			{
-				for( int i = 0; i < ent->d_namlen; i++ )
+				for( size_t i = 0; i < ent->d_namlen; i++ )
 					result[i] = ent->d_name[i];
 				result[ent->d_namlen] = 0;
 
