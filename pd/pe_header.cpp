@@ -1,13 +1,8 @@
 #include "StdAfx.h"
 #include "pe_header.h"
 
-pe_header::pe_header( char* filename, PD_OPTIONS* options )
+void pe_header::reset()
 {
-	this->_options = options;
-	this->_image_size = 0;
-	this->_raw_header_size = 0;
-	this->_disk_image_size = 0;
-	this->_stream = (stream_wrapper*) new file_stream( filename );
 	_original_base = 0;
 	_unique_hash = 0;
 	_unique_hash_ep = 0;
@@ -24,14 +19,35 @@ pe_header::pe_header( char* filename, PD_OPTIONS* options )
 	_name_symbols_path_size = 0;
 	_name_symbols_path = NULL;
 	_export_list = NULL;
+	_correction_offset = 0;
+	_image = NULL;
+	_image_size = 0;
+	_disk_image = NULL;
+	_disk_image_size = 0;
+	_header_dos = NULL;
+	_header_pe32 = NULL;
+	_header_pe64 = NULL;
+	_header_export_directory = NULL;
+	_header_import_descriptors = NULL;
+	_header_import_descriptors_count = 0;
+	_header_sections = NULL;
+	_num_sections = 0;
+	_header_section_sizes = 0;
+	_raw_header = NULL;
+	_raw_header_size = 0;
 
-	this->_parsed_dos = false;
-	this->_parsed_pe_32 = false;
-	this->_parsed_pe_64 = false;
-	this->_parsed_sections = false;
-	this->_image_size = 0;
-	this->_disk_image_size = 0;
-	this->_unique_hash = 0;
+	_parsed_dos = false;
+	_parsed_pe_32 = false;
+	_parsed_pe_64 = false;
+	_parsed_sections = false;
+}
+
+pe_header::pe_header( char* filename, PD_OPTIONS* options )
+{
+	reset();
+
+	this->_options = options;
+	this->_stream = (stream_wrapper*) new file_stream( filename );
 
 	if( _stream != NULL )
 	{
@@ -57,36 +73,9 @@ export_list* pe_header::get_exports()
 
 pe_header::pe_header( DWORD pid, void* base, module_list* modules, PD_OPTIONS* options )
 {
+	reset();
+
 	this->_options = options;
-	this->_image_size = 0;
-	this->_raw_header_size = 0;
-	this->_disk_image_size = 0;
-	_unique_hash = 0;
-	_unique_hash_ep = 0;
-	_unique_hash_ep_short = 0;
-
-	_header_export_directory = NULL;
-	_header_import_descriptors = NULL;
-	_name_filepath_long_size = 0;
-	_name_filepath_long = NULL;
-	_name_filepath_short_size = 0;
-	_name_filepath_short = NULL;
-	_name_original_exports_size = 0;
-	_name_original_exports = NULL;
-	_name_original_manifest_size = 0;
-	_name_original_manifest = NULL;
-	_name_symbols_path_size = 0;
-	_name_symbols_path = NULL;
-	_export_list = NULL;
-
-	this->_parsed_dos = false;
-	this->_parsed_pe_32 = false;
-	this->_parsed_pe_64 = false;
-	this->_parsed_sections = false;
-	this->_image_size = 0;
-	this->_disk_image_size = 0;
-	this->_unique_hash = 0;
-
 	this->_stream = (stream_wrapper*) new process_stream( pid, base, modules );
 	_original_base = base;
 
@@ -105,36 +94,9 @@ pe_header::pe_header( DWORD pid, void* base, module_list* modules, PD_OPTIONS* o
 
 pe_header::pe_header( DWORD pid, module_list* modules, PD_OPTIONS* options )
 {
+	reset();
+
 	this->_options = options;
-	this->_image_size = 0;
-	this->_raw_header_size = 0;
-	this->_disk_image_size = 0;
-	_unique_hash = 0;
-	_unique_hash_ep = 0;
-	_unique_hash_ep_short = 0;
-
-	_header_export_directory = NULL;
-	_header_import_descriptors = NULL;
-	_name_filepath_long_size = 0;
-	_name_filepath_long = NULL;
-	_name_filepath_short_size = 0;
-	_name_filepath_short = NULL;
-	_name_original_exports_size = 0;
-	_name_original_exports = NULL;
-	_name_original_manifest_size = 0;
-	_name_original_manifest = NULL;
-	_name_symbols_path_size = 0;
-	_name_symbols_path = NULL;
-	_export_list = NULL;
-
-	this->_parsed_dos = false;
-	this->_parsed_pe_32 = false;
-	this->_parsed_pe_64 = false;
-	this->_parsed_sections = false;
-	this->_image_size = 0;
-	this->_disk_image_size = 0;
-	this->_unique_hash = 0;
-
 	this->_stream = (stream_wrapper*) new process_stream( pid, modules );
 	_original_base = ((process_stream*) _stream)->base;
 
@@ -144,34 +106,9 @@ pe_header::pe_header( DWORD pid, module_list* modules, PD_OPTIONS* options )
 
 pe_header::pe_header( HANDLE ph, void* base, module_list* modules, PD_OPTIONS* options )
 {
+	reset();
+
 	this->_options = options;
-	this->_image_size = 0;
-	this->_raw_header_size = 0;
-	this->_disk_image_size = 0;
-	_unique_hash = 0;
-	_unique_hash_ep = 0;
-	_unique_hash_ep_short = 0;
-
-	_name_filepath_long_size = 0;
-	_name_filepath_long = NULL;
-	_name_filepath_short_size = 0;
-	_name_filepath_short = NULL;
-	_name_original_exports_size = 0;
-	_name_original_exports = NULL;
-	_name_original_manifest_size = 0;
-	_name_original_manifest = NULL;
-	_name_symbols_path_size = 0;
-	_name_symbols_path = NULL;
-	_export_list = NULL;
-
-	this->_parsed_dos = false;
-	this->_parsed_pe_32 = false;
-	this->_parsed_pe_64 = false;
-	this->_parsed_sections = false;
-	this->_image_size = 0;
-	this->_disk_image_size = 0;
-	this->_unique_hash = 0;
-
 	this->_stream = (stream_wrapper*) new process_stream( ph, base );
 	_original_base = base;
 
@@ -858,7 +795,7 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 			_header_sections[_num_sections].PointerToLinenumbers = 0;
 			
 			if( _options->Verbose )
-				printf("%s: size %x\n", name, image_size);
+				printf("%s: size %llx\n", name, image_size);
 
 			_num_sections++;
 			image_size += est_size;
@@ -1323,9 +1260,9 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 				printf("INFO: Re-building entrypoint. Original entrypoint invalid: %x\n", _header_pe32->OptionalHeader.AddressOfEntryPoint);
 
 				// The entry-point looks invalid, search for candidates to reconstruct it
-				unsigned __int64 best_entrypoint = 0;
+				unsigned __int32 best_entrypoint = 0;
 
-				for (__int64 offset = 0x1000; offset < _image_size - 8; offset += 1)
+				for (__int32 offset = 0x1000; offset < _image_size - 8; offset += 1)
 				{
 					// Check if this is a possible entrypoint
 					unsigned __int64 cand = *((__int64*)(_image + offset));
@@ -1602,14 +1539,14 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 							best_entrypoint = offset;
 						}
 						if (_options->Verbose)
-							printf("INFO: Possible entrypoint found (weak): %x\n", offset);
+							printf("INFO: Possible entrypoint found (weak): %llx\n", offset);
 
 						// Validate that the full hash matches a known entrypoint
 						cand = _hash_asm(offset);
 						if (hash_database->contains_ep(cand))
 						{
 							best_entrypoint = offset;
-							printf("INFO: Possible entrypoint found (strong): %x\n", offset);
+							printf("INFO: Possible entrypoint found (strong): %llx\n", offset);
 							if (!_options->Verbose)
 								break;
 						}
@@ -1620,7 +1557,7 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 				if (best_entrypoint != 0)
 				{
 					_header_pe64->OptionalHeader.AddressOfEntryPoint = best_entrypoint;
-					printf("INFO: Updated entrypoint to: %x\n", best_entrypoint);
+					printf("INFO: Updated entrypoint to: %llx\n", best_entrypoint);
 				}
 			}
 

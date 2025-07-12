@@ -95,9 +95,10 @@ bool dump_process::get_process_name(char* process_name, SIZE_T byte_length)
 			strcpy_s(process_name, byte_length, _process_name);
 			return true;
 		}
+		if (byte_length > 0)
+			_process_name[0] = 0;
 	}
-	if (byte_length > 0)
-		_process_name[0] = 0;
+	
 	return false;
 }
 

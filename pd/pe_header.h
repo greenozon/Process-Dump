@@ -47,7 +47,6 @@ struct IMPORT_SUMMARY
 
 class pe_header
 {
-	
 	unsigned __int64 _unique_hash;
 	unsigned __int64 _unique_hash_ep;
 	unsigned __int64 _unique_hash_ep_short;
@@ -109,6 +108,8 @@ class pe_header
 	
 	DWORD _section_align( DWORD address, DWORD alignment);
 	__int64 _section_align( __int64 address, DWORD alignment);
+
+	void reset();
 
 public:
 	pe_header( char* filename, PD_OPTIONS* options );

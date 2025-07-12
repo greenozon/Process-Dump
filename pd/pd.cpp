@@ -71,7 +71,7 @@ bool get_privileges(HANDLE h_Process)
 		if( GetTokenInformation(h_Token, TokenPrivileges, privilages,sizeof(TOKEN_PRIVILEGES)*100,&dw_TokenLength) )
 		{
 			// Enable all privileges
-			for( int i = 0; i < privilages->PrivilegeCount; i++ )
+			for( size_t i = 0; i < privilages->PrivilegeCount; i++ )
 			{
 				privilages->Privileges[i].Attributes = SE_PRIVILEGE_ENABLED;
 			}
@@ -795,7 +795,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	if( flagHeader )
 	{
 		printf("Process Dump v2.2 (dev)\n");
-		printf("  Copyright © 2017, Geoff McDonald\n");
+		printf("  Copyright © 2017-2025, Geoff McDonald\n");
 		printf("  http://www.split-code.com/\n");
 		printf("  https://github.com/glmcdona/Process-Dump\n\n");
 	}

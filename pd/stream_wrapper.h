@@ -269,7 +269,7 @@ public:
 	virtual SIZE_T get_location( char* out_name, SIZE_T out_name_size )
 	{
 		char* hex = new char[16 + 2 + 1]; // Max space required
-		int hexLength = sprintf( hex, "0x%llX", (__int64) this->base );
+		SIZE_T hexLength = sprintf( hex, "0x%llX", (__int64) this->base );
 
 		if( hexLength < out_name_size )
 		{
@@ -322,7 +322,7 @@ public:
 
 			if( blockSize == sizeof(_MEMORY_BASIC_INFORMATION64) )
 			{
-				return mbi.RegionSize - offset;
+				return (SIZE_T)(mbi.RegionSize - offset);
 			}
 			else if(  blockSize == sizeof(_MEMORY_BASIC_INFORMATION32) )
 			{
@@ -343,7 +343,7 @@ public:
 		if( opened )
 		{
 			_MEMORY_BASIC_INFORMATION64 mbi;
-			__int64 blockSize = VirtualQueryEx(ph, (LPCVOID) ((unsigned char*)base + (SIZE_T)offset), (_MEMORY_BASIC_INFORMATION*) &mbi, sizeof(_MEMORY_BASIC_INFORMATION64));
+			SIZE_T blockSize = VirtualQueryEx(ph, (LPCVOID) ((unsigned char*)base + (SIZE_T)offset), (_MEMORY_BASIC_INFORMATION*) &mbi, sizeof(_MEMORY_BASIC_INFORMATION64));
 
 			if( blockSize == sizeof(_MEMORY_BASIC_INFORMATION64) )
 			{
@@ -373,7 +373,7 @@ public:
 		if( opened )
 		{
 			_MEMORY_BASIC_INFORMATION64 mbi;
-			__int64 blockSize = VirtualQueryEx(ph, (LPCVOID) ((unsigned char*)base + (SIZE_T)offset), (_MEMORY_BASIC_INFORMATION*) &mbi, sizeof(_MEMORY_BASIC_INFORMATION64));
+			SIZE_T blockSize = VirtualQueryEx(ph, (LPCVOID) ((unsigned char*)base + (SIZE_T)offset), (_MEMORY_BASIC_INFORMATION*) &mbi, sizeof(_MEMORY_BASIC_INFORMATION64));
 
 			if( blockSize == sizeof(_MEMORY_BASIC_INFORMATION64) )
 			{
@@ -436,7 +436,7 @@ public:
 							success = ReadProcessMemory( ph,
 																(LPCVOID) (start_address),
 																(void*)((__int64) output + already_read),
-																mbi.RegionSize,
+																(SIZE_T)mbi.RegionSize,
 																&num_read);
 							already_read += mbi.RegionSize;
 							*out_read += num_read;
@@ -447,7 +447,7 @@ public:
 							success = ReadProcessMemory( ph,
 																	(LPCVOID) (start_address),
 																	(void*)((__int64) output + already_read),
-																	size - already_read,
+																	(SIZE_T)(size - already_read),
 																	&num_read);
 								already_read += size - already_read;
 								*out_read += num_read;
@@ -484,7 +484,7 @@ public:
 							success = ReadProcessMemory( ph,
 																	(LPCVOID) (start_address),
 																	(void*)((__int64) output + already_read),
-																	size - already_read,
+																	(SIZE_T)(size - already_read),
 																	&num_read);
 								already_read += size - already_read;
 								*out_read += num_read;
