@@ -171,7 +171,7 @@ void pe_header::set_name(char* new_name)
 {
 	// Set name to sue for this module
 	if( _name_filepath_short != NULL )
-		delete _name_filepath_short;
+		delete[] _name_filepath_short;
 
 	// Localize
 	_name_filepath_short = new char[strlen(new_name) + 1];
