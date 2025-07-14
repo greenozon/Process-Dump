@@ -64,7 +64,7 @@ pe_header::pe_header( char* filename, PD_OPTIONS* options )
 
 export_list* pe_header::get_exports()
 {
-	if( (_parsed_pe_32 || _parsed_pe_64) && _export_list != NULL )
+	if( (_parsed_pe_32 || _parsed_pe_64) && _export_list )
 	{
 		return this->_export_list;
 	}

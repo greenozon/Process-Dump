@@ -77,7 +77,7 @@ bool get_privileges(HANDLE h_Process)
 			}
 			
 			// Adjust the privilges
-			if(AdjustTokenPrivileges( h_Token, false, privilages, sizeof(TOKEN_PRIVILEGES)*100, NULL, NULL  ))
+			if( AdjustTokenPrivileges( h_Token, false, privilages, sizeof(TOKEN_PRIVILEGES)*100, NULL, NULL))
 			{
 				return true;
 			}
@@ -368,13 +368,10 @@ void dump_system(pe_hash_database* db, PD_OPTIONS* options)
 
 
 
-bool global_flag_verbose = false;
+static bool global_flag_verbose = false;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-
-	get_privileges( GetCurrentProcess() );
-
 	// Process the flags	
 	WCHAR* filter = NULL;
 	char* processNameFilter = NULL;
@@ -984,7 +981,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		// First gather the process matches
 		DynArray<process_description*> matches;
-		int count = process_find( processNameFilter, &matches );
+		int count = process_find( processNameFilter, matches );
 
 		if( count > 1 )
 		{

@@ -200,8 +200,6 @@ public:
 
 	process_stream(HANDLE ph, void* base, module_list* modules )
 	{
-		_long_name = NULL;
-		_short_name = NULL;
 		init( ph, base, modules );
 	}
 

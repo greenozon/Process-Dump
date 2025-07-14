@@ -77,6 +77,6 @@ public:
 	}
 };
 
-DWORD process_find(string match_regex, DynArray<process_description*>* result);
+DWORD process_find(string match_regex, DynArray<process_description*>& result);
 string ExePath();
 void PrintLastError(LPTSTR lpszFunction); 
