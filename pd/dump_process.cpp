@@ -145,7 +145,7 @@ MBI_BASIC_INFO dump_process::get_mbi_info(unsigned __int64 address)
 		_MEMORY_BASIC_INFORMATION32* mbi32 = (_MEMORY_BASIC_INFORMATION32*)&mbi;
 
 		result.base = mbi32->BaseAddress;
-		result.end = mbi32->BaseAddress + mbi32->RegionSize;
+		result.end = (__int64)mbi32->BaseAddress + mbi32->RegionSize;
 		result.protect = mbi32->Protect;
 		result.valid = mbi32->State != MEM_FREE && !(mbi32->Protect & (PAGE_NOACCESS | PAGE_GUARD));
 		result.executable = (mbi32->Protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY)) > 0;
@@ -186,7 +186,7 @@ int dump_process::get_all_hashes(unordered_set<unsigned __int64>* output_hashes,
 						executable_heaps.insert(mbi_info.base);
 					}
 					
-					if( mbi_info.end + 1 <= address )
+					if( (unsigned __int64)mbi_info.end + 1 <= address )
 						break;
 					address = mbi_info.end + 1;
 				}
@@ -291,7 +291,7 @@ int dump_process::get_all_hashes(unordered_set<unsigned __int64>* output_hashes,
 					}
 				}
 
-				if (mbi_info.end + 1 <= address)
+				if ((unsigned __int64)mbi_info.end + 1 <= address)
 					break;
 				address = mbi_info.end + 1;
 			}
@@ -427,7 +427,7 @@ bool dump_process::build_export_list(export_list* result, char* library, module_
 		// Loop through each of these modules, grabbing their exports
 		for (unordered_map<unsigned __int64, module*>::const_iterator item = modules->_modules.begin(); item != modules->_modules.end(); ++item)
 		{
-			if (strcmpi(item->second->short_name, library) == 0)
+			if (_strcmpi(item->second->short_name, library) == 0)
 			{
 				pe_header* header = new pe_header(_pid, (void*)item->first, modules, _options);
 				if (header->process_pe_header() && header->process_sections() && header->process_export_directory())
@@ -647,7 +647,7 @@ void dump_process::dump_all()
 			maxAddress = 0xffffffffffffffff; // Not a problem for 32bit targets
 			
 			// Walk the process heaps
-			__int64 address = 0;
+			unsigned __int64 address = 0;
 			
 			// First loop to build a list of executable heaps for later use in locating loose executable heaps not associated with any modules
 			set<unsigned __int64> executable_heaps;
@@ -663,7 +663,7 @@ void dump_process::dump_all()
 						executable_heaps.insert(mbi_info.base);
 					}
 
-					if (mbi_info.end + 1 <= address)
+					if ((unsigned __int64)mbi_info.end + 1 <= address)
 						break;
 					address = mbi_info.end + 1;
 				}
@@ -687,7 +687,7 @@ void dump_process::dump_all()
 					char output[2];
 					SIZE_T out_read;
 					int count = 0;
-					while (base + 0x300 < mbi_info.end && count < 1000) // Skip the rest of the section if we have looped over 1000 pages.
+					while (base + 0x300 < (unsigned __int64)mbi_info.end && count < 1000) // Skip the rest of the section if we have looped over 1000 pages.
 					{
 						if (ReadProcessMemory(_ph, (LPCVOID)((unsigned char*)base), output, 2, &out_read) && out_read == 2)
 						{
@@ -771,7 +771,7 @@ void dump_process::dump_all()
 					}
 				}
 
-				if (mbi_info.end + 1 <= address)
+				if ((unsigned __int64)mbi_info.end + 1 <= address)
 					break;
 				address = mbi_info.end + 1;
 			}
@@ -816,7 +816,7 @@ void dump_process::dump_all()
 						if( import_summary.HASH_GENERIC != 0 && !_db_clean->contains(import_summary.HASH_GENERIC) )
 						{
 							if( _options->Verbose )
-								fprintf( stdout, "INFO: Unattached executable heap at 0x%llX found with %i imports matched.\n", *it, import_summary.COUNT_UNIQUE_IMPORT_ADDRESSES );
+								fprintf( stdout, "INFO: Unattached executable heap at 0x%llX found with %zu imports matched.\n", *it, import_summary.COUNT_UNIQUE_IMPORT_ADDRESSES );
 							
 							if( header->somewhat_parsed() && import_summary.COUNT_UNIQUE_IMPORT_ADDRESSES >= 2 ) // Require at least 5 imports for dumping
 							{

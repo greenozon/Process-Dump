@@ -88,7 +88,7 @@ bool get_privileges(HANDLE h_Process)
 	return false;
 }
 
-bool ConsoleRequestingClose = false;
+volatile bool ConsoleRequestingClose = false;
 BOOL WINAPI ConsoleHandler(DWORD CEvent)
 {
 	switch (CEvent)

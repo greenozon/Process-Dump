@@ -48,7 +48,7 @@ pe_hash_database::pe_hash_database(char* clean_database_name, char* ep_database_
 		}
 		fclose(fh);
 
-		printf("Loaded %i clean hashes from database.\n", _clean_hashes.size());
+		printf("Loaded %zu clean hashes from database.\n", _clean_hashes.size());
 	}
 	else
 	{
@@ -79,7 +79,7 @@ pe_hash_database::pe_hash_database(char* clean_database_name, char* ep_database_
 		}
 		fclose(fh);
 
-		printf("Loaded %i entrypoint hashes from database.\n", _ep_hashes.size());
+		printf("Loaded %zu entrypoint hashes from database.\n", _ep_hashes.size());
 	}
 	else
 	{
@@ -111,7 +111,7 @@ pe_hash_database::pe_hash_database(char* clean_database_name, char* ep_database_
 		}
 		fclose(fh);
 
-		printf("Loaded %i entrypoint short hashes from database.\n", _epshort_hashes.size());
+		printf("Loaded %zu entrypoint short hashes from database.\n", _epshort_hashes.size());
 	}
 	else
 	{
@@ -133,7 +133,7 @@ pe_hash_database::pe_hash_database(char* clean_database_name, char* ep_database_
 int pe_hash_database::count()
 {
 	EnterCriticalSection( &_lock );
-	int result = _clean_hashes.size();
+	int result = (int)_clean_hashes.size();
 	LeaveCriticalSection( &_lock );
 	return result;
 }
@@ -141,7 +141,7 @@ int pe_hash_database::count()
 int pe_hash_database::count_eps()
 {
 	EnterCriticalSection(&_lock);
-	int result = _ep_hashes.size();
+	int result = (int)_ep_hashes.size();
 	LeaveCriticalSection(&_lock);
 	return result;
 }
@@ -149,7 +149,7 @@ int pe_hash_database::count_eps()
 int pe_hash_database::count_epshorts()
 {
 	EnterCriticalSection(&_lock);
-	int result = _epshort_hashes.size();
+	int result = (int)_epshort_hashes.size();
 	LeaveCriticalSection(&_lock);
 	return result;
 }
@@ -253,7 +253,7 @@ bool pe_hash_database::add_folder( char* dir_name, WCHAR* filter, bool recursive
 							if (PathMatchSpec(result, filter))
 							{
 								// Process this file
-								int length = wcslen(result) + strlen(dir_name_expanded) + 1;
+								size_t length = wcslen(result) + strlen(dir_name_expanded) + 1;
 								char* filename = new char[length + 1];
 								filename[length] = 0;
 								sprintf(filename, "%s\\%S", dir_name_expanded, result);
@@ -282,7 +282,7 @@ bool pe_hash_database::add_folder( char* dir_name, WCHAR* filter, bool recursive
 					}
 					else
 					{
-						fprintf(stderr, "Failed to allocate memory block of size %i for filename: %s.\n", ent->d_namlen + 1, strerror(errno));
+						fprintf(stderr, "Failed to allocate memory block of size %zu for filename: %s.\n", ent->d_namlen + 1, strerror(errno));
 					}
 				}
 				closedir(dir);
@@ -339,7 +339,7 @@ bool pe_hash_database::remove_folder( char* dir_name, WCHAR* filter, bool recurs
 					if( PathMatchSpec( result, filter ) )
 					{
 						// Process this file
-						int length = wcslen(result) + strlen(dir_name_expanded) + 1;
+						size_t length = wcslen(result) + strlen(dir_name_expanded) + 1;
 						char* filename = new char[length + 1];
 						filename[length] = 0;
 						sprintf( filename, "%s\\%S", dir_name_expanded, result );
@@ -367,7 +367,7 @@ bool pe_hash_database::remove_folder( char* dir_name, WCHAR* filter, bool recurs
 			}
 			else
 			{
-				fprintf(stderr, "Failed to allocate memory block of size %i for filename: %s.\n", ent->d_namlen + 1, strerror(errno));
+				fprintf(stderr, "Failed to allocate memory block of size %zu for filename: %s.\n", ent->d_namlen + 1, strerror(errno));
 			}
 		}
 		closedir (dir);
@@ -517,7 +517,7 @@ bool pe_hash_database::save()
 		fclose(fh);
 		LeaveCriticalSection(&_lock);
 
-		printf("Wrote to entrypoint hash database. It now has a total of %i entrypoint hashes.\n", _ep_hashes.size());
+		printf("Wrote to entrypoint hash database. It now has a total of %zu entrypoint hashes.\n", _ep_hashes.size());
 	}
 	else
 	{
@@ -539,7 +539,7 @@ bool pe_hash_database::save()
 		fclose(fh);
 		LeaveCriticalSection(&_lock);
 
-		printf("Wrote to entrypoint short hash database. It now has a total of %i entrypoint short hashes.\n", _epshort_hashes.size());
+		printf("Wrote to entrypoint short hash database. It now has a total of %zu entrypoint short hashes.\n", _epshort_hashes.size());
 	}
 	else
 	{
@@ -561,7 +561,7 @@ bool pe_hash_database::save()
 		fclose(fh);
 		LeaveCriticalSection( &_lock );
 
-		printf("Wrote to clean hash database. It now has a total of %i clean hashes.\n", _clean_hashes.size());
+		printf("Wrote to clean hash database. It now has a total of %zu clean hashes.\n", _clean_hashes.size());
 		return true;
 	}
 	else
