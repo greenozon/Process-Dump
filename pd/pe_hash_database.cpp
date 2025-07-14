@@ -300,7 +300,7 @@ bool pe_hash_database::add_folder( char* dir_name, WCHAR* filter, bool recursive
 bool pe_hash_database::remove_folder( char* dir_name, WCHAR* filter, bool recursively )
 {
 	// Expand the environment names in the directory
-	char* dir_name_expanded = new char[1000];
+	char dir_name_expanded[1000];
 	ExpandEnvironmentStringsA( dir_name, dir_name_expanded, 1000 );
 
 
@@ -400,28 +400,24 @@ bool pe_hash_database::add_file(char* file)
 	options.ForceGenHeader = false;
 	options.ImportRec = false;
 	options.Verbose = false;
-	pe_header* header = new pe_header(file, &options);
+	pe_header header(file, &options);
 	unsigned __int64 hash = 0;
 	unsigned __int64 hash_ep = 0;
 	unsigned __int64 hash_ep_short = 0;
-	header->process_pe_header();
-	header->process_sections();
+	header.process_pe_header();
+	header.process_sections();
 	
-	if( header->somewhat_parsed() )
+	if( header.somewhat_parsed() )
 	{
-		hash = header->get_hash();
-		hash_ep = header->get_hash_ep();
-		hash_ep_short = header->get_hash_ep_short();
+		hash = header.get_hash();
+		hash_ep = header.get_hash_ep();
+		hash_ep_short = header.get_hash_ep_short();
 	}
 	else
 	{
 		printf("Failed to parse PE header for %s.\n", file);
-		delete header;
 		return false;
 	}
-	
-	
-	delete header;
 
 	// Add the entrypoint hash
 	if (hash_ep != 0)
@@ -471,16 +467,15 @@ bool pe_hash_database::remove_file(char* file)
 	options.ForceGenHeader = false;
 	options.ImportRec = false;
 	options.Verbose = false;
-	pe_header* header = new pe_header(file, &options);
-	header->process_pe_header();
-	header->process_sections();
+	pe_header header(file, &options);
+	header.process_pe_header();
+	header.process_sections();
 	
 	unsigned __int64 hash = 0;
-	if( header->somewhat_parsed() )
+	if( header.somewhat_parsed() )
 	{
-		hash = header->get_hash();
+		hash = header.get_hash();
 	}
-	delete header;
 
 	if( hash != 0 )
 	{

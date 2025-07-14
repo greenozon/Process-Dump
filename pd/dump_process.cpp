@@ -276,11 +276,6 @@ int dump_process::get_all_hashes(unordered_set<unsigned __int64>* output_hashes,
 											}
 										}
 									}
-
-									
-
-									
-
 								}
 								delete header;
 							}
@@ -329,12 +324,12 @@ int dump_process::get_all_hashes(unordered_set<unsigned __int64>* output_hashes,
 						output_hashes->insert( chunk_header_hash );
 
 						// Calculate the generic import reference hash as well
-						pe_header* header = new pe_header( _pid, (void*) *it, modules, _options );
-						header->build_pe_header( 0x1000, true, 1 ); // 64bit, only build it with the 1 executable section for performance reasons
-						header->process_sections();
+						pe_header header( _pid, (void*) *it, modules, _options );
+						header.build_pe_header( 0x1000, true, 1 ); // 64bit, only build it with the 1 executable section for performance reasons
+						header.process_sections();
 
 						// Get the import attributes of this header
-						IMPORT_SUMMARY import_summary = header->get_imports_information(&this->_export_list);
+						IMPORT_SUMMARY import_summary = header.get_imports_information(&this->_export_list);
 
 						// Check hash
 						if( import_summary.HASH_GENERIC != 0 && !_db_clean->contains(import_summary.HASH_GENERIC) && output_hashes->count( import_summary.HASH_GENERIC ) == 0 )
@@ -344,7 +339,6 @@ int dump_process::get_all_hashes(unordered_set<unsigned __int64>* output_hashes,
 							
 							output_hashes->insert( import_summary.HASH_GENERIC );
 						}
-						delete header;
 					}
 				}
 				if( _options->Verbose )
@@ -399,15 +393,12 @@ bool dump_process::build_export_list()
 			// Loop through each of these modules, grabbing their exports
 			for (unordered_map<unsigned __int64, module*>::const_iterator item = modules->_modules.begin(); item != modules->_modules.end(); ++item)
 			{
-				pe_header* header = new pe_header(_pid, (void*) item->first, modules, _options);
-				if (header->process_pe_header() && header->process_sections() && header->process_export_directory())
+				pe_header header(_pid, (void*) item->first, modules, _options);
+				if (header.process_pe_header() && header.process_sections() && header.process_export_directory())
 				{
 					// Load it's exports
-					this->_export_list.add_exports(header->get_exports());
+					this->_export_list.add_exports(header.get_exports());
 				}
-
-				// Cleanup
-				delete header;
 			}
 
 			delete modules;
@@ -429,19 +420,15 @@ bool dump_process::build_export_list(export_list* result, char* library, module_
 		{
 			if (_strcmpi(item->second->short_name, library) == 0)
 			{
-				pe_header* header = new pe_header(_pid, (void*)item->first, modules, _options);
-				if (header->process_pe_header() && header->process_sections() && header->process_export_directory())
+				pe_header header(_pid, (void*)item->first, modules, _options);
+				if (header.process_pe_header() && header.process_sections() && header.process_export_directory())
 				{
 					// Load its exports
-					result->add_exports(header->get_exports());
+					result->add_exports(header.get_exports());
 				}
-
-				// Cleanup
-				delete header;
 			}
 		}
 	}
-
 
 	return true;
 }

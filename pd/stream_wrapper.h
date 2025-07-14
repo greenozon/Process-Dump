@@ -270,17 +270,16 @@ public:
 
 	virtual SIZE_T get_location( char* out_name, SIZE_T out_name_size )
 	{
-		char* hex = new char[16 + 2 + 1]; // Max space required
+		char hex[16 + 2 + 1]; // Max space required
 		SIZE_T hexLength = sprintf( hex, "0x%llX", (__int64) this->base );
 
 		if( hexLength < out_name_size )
 		{
 			memcpy( out_name, hex, hexLength );
 			out_name[hexLength] = 0;
-			delete[] hex;
 			return hexLength;
 		}
-		delete[] hex;
+
 		return 0;
 	}
 

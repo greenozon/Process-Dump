@@ -67,7 +67,7 @@ bool get_privileges(HANDLE h_Process)
 	if( OpenProcessToken(h_Process, TOKEN_READ | TOKEN_QUERY | TOKEN_ADJUST_PRIVILEGES , &h_Token) )
 	{
 		// Read the old token privileges
-		TOKEN_PRIVILEGES* privilages = new TOKEN_PRIVILEGES[100];
+		TOKEN_PRIVILEGES privilages[100];
 		if( GetTokenInformation(h_Token, TokenPrivileges, privilages,sizeof(TOKEN_PRIVILEGES)*100,&dw_TokenLength) )
 		{
 			// Enable all privileges
@@ -79,11 +79,9 @@ bool get_privileges(HANDLE h_Process)
 			// Adjust the privilges
 			if(AdjustTokenPrivileges( h_Token, false, privilages, sizeof(TOKEN_PRIVILEGES)*100, NULL, NULL  ))
 			{
-				delete[] privilages;
 				return true;
 			}
 		}
-		delete[] privilages;
 	}
 	return false;
 }
@@ -119,9 +117,8 @@ void add_process_hashes( DWORD pid, pe_hash_database* db, PD_OPTIONS* options )
 	unordered_set<unsigned __int64> new_hashes_ep_shorts;
 
 	// Process this process
-	dump_process* dumper = new dump_process( pid, db, options, true );
-	dumper->get_all_hashes( &new_hashes, &new_hashes_eps, &new_hashes_ep_shorts);
-	delete dumper;
+	dump_process dumper( pid, db, options, true );
+	dumper.get_all_hashes( &new_hashes, &new_hashes_eps, &new_hashes_ep_shorts);
 	
 	// Add all these hashes to the database
 	db->add_hashes( new_hashes );
@@ -235,15 +232,13 @@ void dump_process_worker(Queue<PROCESSENTRY32>* work_queue, pe_hash_database* db
 			// Process this process
 
 			// Dump
-			dump_process* dumper = new dump_process(entry.th32ProcessID, db, options, true);
-			dumper->dump_all();
+			dump_process dumper(entry.th32ProcessID, db, options, true);
+			dumper.dump_all();
 
 			// Exclude these hashes from the next dumps
-			dumper->get_all_hashes(&new_hashes, NULL, NULL);
+			dumper.get_all_hashes(&new_hashes, NULL, NULL);
 			db->add_hashes(new_hashes);
 			new_hashes.clear();
-
-			delete dumper;
 		}
 	}
 }
@@ -469,7 +464,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 				// Check the prefix
 				bool isHex = false;
-				wchar_t* prefix = new wchar_t[3];
+				wchar_t prefix[3];
 				memcpy(prefix, filter, 4);
 				prefix[2] = 0;
 
@@ -478,7 +473,6 @@ int _tmain(int argc, _TCHAR* argv[])
 					filter = &filter[2];
 					isHex = true;
 				}
-				delete[] prefix;
 				
 				// Extract the pid from the string
 				if( (isHex && swscanf(filter, L"%x", &pid) > 0) ||
@@ -511,7 +505,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 				// Check the prefix
 				bool isHex = false;
-				wchar_t* prefix = new wchar_t[3];
+				wchar_t prefix[3];
 				memcpy(prefix, filter, 4);
 				prefix[2] = 0;
 
@@ -520,7 +514,6 @@ int _tmain(int argc, _TCHAR* argv[])
 					filter = &filter[2];
 					isHex = true;
 				}
-				delete[] prefix;
 				
 				// Extract the pid from the string
 				if( (isHex && swscanf(filter, L"%llx", &address) > 0) ||
@@ -572,7 +565,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 				// Check the prefix
 				bool isHex = false;
-				wchar_t* prefix = new wchar_t[3];
+				wchar_t prefix[3];
 				memcpy(prefix, filter, 4);
 				prefix[2] = 0;
 
@@ -581,7 +574,6 @@ int _tmain(int argc, _TCHAR* argv[])
 					filter = &filter[2];
 					isHex = true;
 				}
-				delete[] prefix;
 				
 				// Extract the number from the string
 				if( (isHex && swscanf(filter, L"%x", &options.NumberOfThreads) > 0) ||
@@ -975,17 +967,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	if( flagPidDump )
 	{
 		// Dump the specified PID
-		dump_process* dumper = new dump_process( pid, db,  &options, false );
+		dump_process dumper( pid, db,  &options, false );
 
 		if( flagAddressDump )
 		{
-			dumper->dump_region( address );
+			dumper.dump_region( address );
 		}
 		else
 		{
-			dumper->dump_all();
+			dumper.dump_all();
 		}
-		delete dumper;
 	}
 	else if( flagProcessNameDump )
 	{
@@ -1006,14 +997,12 @@ int _tmain(int argc, _TCHAR* argv[])
 
 			printf("\n\nAre you sure all of these processes should be dumped? (y/n): ");
 
-			char* answer = new char[10];
+			char answer[10];
 			fgets( answer, 10, stdin );
 			if( answer[0] != 'y' )
 			{
-				delete[] answer;
 				exit(0);
 			}
-			delete[] answer;
 		}
 
 		// Loop through dumping the matching processes. Don't double-dump
@@ -1023,16 +1012,14 @@ int _tmain(int argc, _TCHAR* argv[])
 		for( int i = 0; i < count; i++ )
 		{
 			// Process this process
-			dump_process* dumper = new dump_process( matches[i]->pid, db, &options, false );
+			dump_process dumper( matches[i]->pid, db, &options, false );
 
-			dumper->dump_all();
+			dumper.dump_all();
 
 			// Exclude these hashes from the next dumps
-			dumper->get_all_hashes( &new_hashes, NULL, NULL );
+			dumper.get_all_hashes( &new_hashes, NULL, NULL );
 			db->add_hashes( new_hashes );
 			new_hashes.clear();
-
-			delete dumper;
 		}
 	}
 	else if( flagSystemDump )
@@ -1043,9 +1030,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	else if( flagPidDump )
 	{
 		// Dump the specified process
-		dump_process* dumper = new dump_process( pid, db,  &options, false );
-		dumper->dump_all();
-		delete dumper;
+		dump_process dumper( pid, db,  &options, false );
+		dumper.dump_all();
 	}
 	else if (flagDumpCloses)
 	{
@@ -1060,8 +1046,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 
 		// Start the hook monitor
-		close_watcher* watcher = new close_watcher(db, &options);
-		watcher->start_monitor();
+		close_watcher watcher(db, &options);
+		watcher.start_monitor();
 
 		printf("------> Note: You may cleanly quit at any time by pressing CTRL-C. <------\n");
 
@@ -1073,8 +1059,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		
 		// Cleanup properly
 		printf("Cleaning up process terminate hooks cleanly...\n");
-		watcher->stop_monitor();
-		delete watcher;
+		watcher.stop_monitor();
 	}
 
 	printf("Finished running.\n");
