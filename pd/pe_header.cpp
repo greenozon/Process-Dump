@@ -47,7 +47,7 @@ pe_header::pe_header( char* filename, PD_OPTIONS* options )
 	reset();
 
 	this->_options = options;
-	this->_stream = (stream_wrapper*) new file_stream( filename );
+	this->_stream = new file_stream( filename );
 
 	if( _stream != NULL )
 	{
@@ -76,7 +76,7 @@ pe_header::pe_header( DWORD pid, void* base, module_list* modules, PD_OPTIONS* o
 	reset();
 
 	this->_options = options;
-	this->_stream = (stream_wrapper*) new process_stream( pid, base, modules );
+	this->_stream = new process_stream( pid, base, modules );
 	_original_base = base;
 
 	if( _stream != NULL )
@@ -97,7 +97,7 @@ pe_header::pe_header( DWORD pid, module_list* modules, PD_OPTIONS* options )
 	reset();
 
 	this->_options = options;
-	this->_stream = (stream_wrapper*) new process_stream( pid, modules );
+	this->_stream = new process_stream( pid, modules );
 	_original_base = ((process_stream*) _stream)->base;
 
 	if( _options->Verbose )
@@ -109,7 +109,7 @@ pe_header::pe_header( HANDLE ph, void* base, module_list* modules, PD_OPTIONS* o
 	reset();
 
 	this->_options = options;
-	this->_stream = (stream_wrapper*) new process_stream( ph, base );
+	this->_stream = new process_stream( ph, base );
 	_original_base = base;
 
 	if( _options->Verbose )
@@ -1211,7 +1211,7 @@ bool pe_header::process_sections( )
 				{
 					char location[FILEPATH_SIZE + 1];
 					_stream->get_location(location, FILEPATH_SIZE + 1);
-					fprintf( stderr, "WARNING: module '%s' at %s. Failed to read in image at 0x%llX of size %. Was only able to read %zu bytes from this region.\n",
+					fprintf( stderr, "WARNING: module '%s' at %s. Failed to read in image at 0x%llX of size %zu. Was only able to read %zu bytes from this region.\n",
 						this->get_name(), location, this->_stream->get_address(), _image_size, num_read);
 				}
 			}

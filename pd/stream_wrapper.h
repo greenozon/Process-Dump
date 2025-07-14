@@ -2,8 +2,8 @@
 
 #include <stdio.h>
 #include <windows.h>
-#include "simple.h"
 #include <tlhelp32.h>
+#include "simple.h"
 #include "module_list.h"
 
 
@@ -25,7 +25,7 @@ public:
 };
 
 
-class file_stream : stream_wrapper
+class file_stream : public stream_wrapper
 {
 	char* _filename;
 
@@ -146,7 +146,7 @@ public:
 
 
 
-class process_stream : stream_wrapper
+class process_stream : public stream_wrapper
 {
 	bool opened;
 	HANDLE ph;
@@ -522,7 +522,6 @@ public:
 			if( _short_name != NULL )
 				delete[] _short_name;
 		}
-		
 	}
 };
 
