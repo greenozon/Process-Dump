@@ -286,8 +286,7 @@ bool pe_header::process_hash( )
 				_unique_hash = _rotl64(_unique_hash, 0x17);
 			}
 		}
-		
-		
+
 		return true;
 	}
 
@@ -649,7 +648,7 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 
 		// Build the old dos header
 		_header_dos = (IMAGE_DOS_HEADER*) _raw_header;
-		_header_dos->e_magic=0x5a4d;
+		_header_dos->e_magic=IMAGE_DOS_SIGNATURE;
 		_header_dos->e_cblp=0x0090;
 		_header_dos->e_cp=0x0003;
 		_header_dos->e_crlc=0x0000;
@@ -677,7 +676,7 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 		{
 			// Build intel 32 bit PE header
 			_header_pe32 = (IMAGE_NT_HEADERS32*) base_pe;
-			_header_pe32->Signature = 0x00004550;
+			_header_pe32->Signature = IMAGE_NT_SIGNATURE;
 			_header_pe32->FileHeader.Machine = IMAGE_FILE_MACHINE_I386;
 			_header_pe32->FileHeader.NumberOfSections = 1;
 			_header_pe32->FileHeader.NumberOfSymbols = 0;
@@ -687,7 +686,7 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 				_header_pe32->FileHeader.Characteristics = 0x0002; // Exe: 0x0002
 			else
 				_header_pe32->FileHeader.Characteristics = 0x2000; // Dll: 0x2000
-			_header_pe32->OptionalHeader.Magic=0x10b;
+			_header_pe32->OptionalHeader.Magic = IMAGE_NT_OPTIONAL_HDR32_MAGIC;
 			_header_pe32->OptionalHeader.MajorLinkerVersion=0x08;
 			_header_pe32->OptionalHeader.MinorLinkerVersion=0x00;
 			_header_pe32->OptionalHeader.SizeOfCode=0x00000000;
@@ -695,7 +694,7 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 			_header_pe32->OptionalHeader.SizeOfUninitializedData=0x00000000;
 			_header_pe32->OptionalHeader.AddressOfEntryPoint=0x2000; // Made up, start of first section
 			_header_pe32->OptionalHeader.BaseOfCode=0x00002000;
-			_header_pe32->OptionalHeader.ImageBase= (DWORD)_original_base; // Set to current address
+			_header_pe32->OptionalHeader.ImageBase= PtrToUlong(_original_base); // Set to current address
 			_header_pe32->OptionalHeader.SectionAlignment=0x00001000;
 			_header_pe32->OptionalHeader.FileAlignment=0x000001000;
 			_header_pe32->OptionalHeader.MajorOperatingSystemVersion=0x0004;
@@ -708,14 +707,14 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 			_header_pe32->OptionalHeader.SizeOfImage=0x00006000;
 			_header_pe32->OptionalHeader.SizeOfHeaders=0x00002000;
 			_header_pe32->OptionalHeader.CheckSum=0x00000000;
-			_header_pe32->OptionalHeader.Subsystem=0x0003;
+			_header_pe32->OptionalHeader.Subsystem= IMAGE_SUBSYSTEM_WINDOWS_CUI;
 			_header_pe32->OptionalHeader.DllCharacteristics=0x0000; // 0x2000
 			_header_pe32->OptionalHeader.SizeOfStackReserve=0x0000000000100000;
 			_header_pe32->OptionalHeader.SizeOfStackCommit=0x0000000000001000;
 			_header_pe32->OptionalHeader.SizeOfHeapReserve=0x0000000000100000;
 			_header_pe32->OptionalHeader.SizeOfHeapCommit=0x0000000000001000;
 			_header_pe32->OptionalHeader.LoaderFlags=0x00000000;
-			_header_pe32->OptionalHeader.NumberOfRvaAndSizes=0x00000010;
+			_header_pe32->OptionalHeader.NumberOfRvaAndSizes= IMAGE_NUMBEROF_DIRECTORY_ENTRIES;
 			memset( &_header_pe32->OptionalHeader.DataDirectory, 0, sizeof(IMAGE_DATA_DIRECTORY)*IMAGE_NUMBEROF_DIRECTORY_ENTRIES );
 
 			_header_sections = (IMAGE_SECTION_HEADER*) (base_pe + sizeof(IMAGE_NT_HEADERS32));
@@ -726,7 +725,7 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 		{
 			// Build intel 64 bit PE header
 			_header_pe64 = (IMAGE_NT_HEADERS64*) base_pe;
-			_header_pe64->Signature = 0x00004550;
+			_header_pe64->Signature = IMAGE_NT_SIGNATURE;
 			_header_pe64->FileHeader.Machine = IMAGE_FILE_MACHINE_AMD64;
 			_header_pe64->FileHeader.NumberOfSections = 1;
 			_header_pe64->FileHeader.NumberOfSymbols = 0;
@@ -736,7 +735,7 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 				_header_pe64->FileHeader.Characteristics = 0x0002; // Exe: 0x0002
 			else
 				_header_pe64->FileHeader.Characteristics = 0x2000; // Dll: 0x2000
-			_header_pe64->OptionalHeader.Magic=0x020b;
+			_header_pe64->OptionalHeader.Magic= IMAGE_NT_OPTIONAL_HDR64_MAGIC;
 			_header_pe64->OptionalHeader.MajorLinkerVersion=0x08;
 			_header_pe64->OptionalHeader.MinorLinkerVersion=0x00;
 			_header_pe64->OptionalHeader.SizeOfCode=0x00000000;
@@ -759,14 +758,14 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 			_header_pe64->OptionalHeader.SizeOfImage=0x00006000;
 			_header_pe64->OptionalHeader.SizeOfHeaders=0x00002000;
 			_header_pe64->OptionalHeader.CheckSum=0x00000000;
-			_header_pe64->OptionalHeader.Subsystem=0x0003;
+			_header_pe64->OptionalHeader.Subsystem= IMAGE_SUBSYSTEM_WINDOWS_CUI;
 			_header_pe64->OptionalHeader.DllCharacteristics=0x0000;
 			_header_pe64->OptionalHeader.SizeOfStackReserve=0x0000000000100000;
 			_header_pe64->OptionalHeader.SizeOfStackCommit=0x0000000000001000;
 			_header_pe64->OptionalHeader.SizeOfHeapReserve=0x0000000000100000;
 			_header_pe64->OptionalHeader.SizeOfHeapCommit=0x0000000000001000;
 			_header_pe64->OptionalHeader.LoaderFlags=0x00000000;
-			_header_pe64->OptionalHeader.NumberOfRvaAndSizes=0x00000010;
+			_header_pe64->OptionalHeader.NumberOfRvaAndSizes= IMAGE_NUMBEROF_DIRECTORY_ENTRIES;
 			memset( &_header_pe64->OptionalHeader.DataDirectory, 0, sizeof(IMAGE_DATA_DIRECTORY)*IMAGE_NUMBEROF_DIRECTORY_ENTRIES );
 
 			_header_sections = (IMAGE_SECTION_HEADER*) (base_pe + sizeof(IMAGE_NT_HEADERS64));
@@ -781,11 +780,11 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 		{
 			__int64 est_size = _stream->estimate_section_size(image_size);
 			
-			_header_sections[_num_sections].PointerToRawData = image_size;
-			_header_sections[_num_sections].SizeOfRawData = est_size;
-			_header_sections[_num_sections].VirtualAddress = image_size;
-			_header_sections[_num_sections].Misc.PhysicalAddress = image_size;
-			_header_sections[_num_sections].Misc.VirtualSize = est_size;
+			_header_sections[_num_sections].PointerToRawData = (DWORD)image_size;
+			_header_sections[_num_sections].SizeOfRawData = (DWORD)est_size;
+			_header_sections[_num_sections].VirtualAddress = (DWORD)image_size;
+			_header_sections[_num_sections].Misc.PhysicalAddress = (DWORD)image_size;
+			_header_sections[_num_sections].Misc.VirtualSize = (DWORD)est_size;
 			_header_sections[_num_sections].Characteristics = IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE; //_stream->get_region_characteristics(offset);
 			char name[9];
 			sprintf_s( name, 9, "pd_rec%i", _num_sections);
@@ -839,7 +838,7 @@ bool pe_header::process_pe_header( )
 				{
 					this->_header_dos = (IMAGE_DOS_HEADER*) _raw_header;
 					
-					if( _header_dos->e_magic == 0x5A4D )
+					if( _header_dos->e_magic == IMAGE_DOS_SIGNATURE)
 					{
 						// Successfully parsed dos header
 						this->_parsed_dos = true;
@@ -851,22 +850,22 @@ bool pe_header::process_pe_header( )
 						{
 							// We are unsure if we need to process this as a 32bit or 64bit PE header, lets figure it out.
 							// The first part is independent of the 32 or 64 bit definition.
-							if ( ((IMAGE_NT_HEADERS32*)base_pe)->Signature == 0x4550 && ((IMAGE_NT_HEADERS32*)base_pe)->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC )
+							if ( ((IMAGE_NT_HEADERS32*)base_pe)->Signature == IMAGE_NT_SIGNATURE && ((IMAGE_NT_HEADERS32*)base_pe)->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC )
 							{
 								// 32bit module
 								this->_header_pe32 = ((IMAGE_NT_HEADERS32*) base_pe);
 								this->_parsed_pe_32 = true;
 								if( _options->Verbose )
-									fprintf( stdout, "INFO: Loaded PE header for %s. Somewhat parsed: %d\n", this->get_name(), this->somewhat_parsed() );
+									fprintf( stdout, "INFO: Loaded PE32 header for %s. Somewhat parsed: %d\n", this->get_name(), this->somewhat_parsed() );
 								return true;
 							}
-							else if( ((IMAGE_NT_HEADERS64*)base_pe)->Signature == 0x4550 && ((IMAGE_NT_HEADERS64*)base_pe)->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC )
+							else if( ((IMAGE_NT_HEADERS64*)base_pe)->Signature == IMAGE_NT_SIGNATURE && ((IMAGE_NT_HEADERS64*)base_pe)->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC )
 							{
 								// 64bit module
 								this->_header_pe64 = ((IMAGE_NT_HEADERS64*) base_pe);
 								this->_parsed_pe_64 = true;
 								if( _options->Verbose )
-									fprintf( stdout, "INFO: Loaded PE header for %s. Somewhat parsed: %d\n", this->get_name(), this->somewhat_parsed() );
+									fprintf( stdout, "INFO: Loaded PE64 header for %s. Somewhat parsed: %d\n", this->get_name(), this->somewhat_parsed() );
 								return true;
 							}
 							else
@@ -907,7 +906,7 @@ bool pe_header::process_sections( )
 		{
 			char location[FILEPATH_SIZE + 1];
 			_stream->get_location(location, FILEPATH_SIZE + 1);
-			fprintf( stderr, "WARNING: module '%s' at %s. Extremely large number of sections of 0x%x changed to 0x100 as part of sanity check.\n",
+			fprintf( stderr, "WARNING: module '%s' at %s. Extremely large number of sections of %u changed to 0x100 as part of sanity check.\n",
 				this->get_name(), location, _header_pe32->FileHeader.NumberOfSections );
 			_header_pe32->FileHeader.NumberOfSections = 0x100;
 		}
@@ -921,12 +920,13 @@ bool pe_header::process_sections( )
 				// Parse the maximum number of sections possible
 				char location[FILEPATH_SIZE + 1];
 				_stream->get_location(location, FILEPATH_SIZE + 1);
-				fprintf( stderr, "WARNING: module '%s' at %s. Number of sections being changed from 0x%x to 0x%x such that it will fit within the PE header buffer.\n",
+				WORD numOfSections = (WORD)(_raw_header + _raw_header_size - base_sections - 1) / sizeof(IMAGE_SECTION_HEADER);
+				fprintf( stderr, "WARNING: module '%s' at %s. Number of sections being changed from %u to %u such that it will fit within the PE header buffer.\n",
 					this->get_name(), location,
 					_header_pe32->FileHeader.NumberOfSections,
-					(int)( (_raw_header + _raw_header_size - base_sections - 1) / sizeof(IMAGE_SECTION_HEADER) )
+					numOfSections
 					);
-				_header_pe32->FileHeader.NumberOfSections = (WORD)( (_raw_header + _raw_header_size - base_sections - 1) / sizeof(IMAGE_SECTION_HEADER) );
+				_header_pe32->FileHeader.NumberOfSections = numOfSections;
 			}
 
 			this->_parsed_sections = true;
@@ -1085,12 +1085,13 @@ bool pe_header::process_sections( )
 				// Parse the maximum number of sections possible
 				char location[FILEPATH_SIZE + 1];
 				_stream->get_location(location, FILEPATH_SIZE + 1);
-				fprintf( stderr, "WARNING: module '%s' at %s. Number of sections being changed from %i to %zu such that it will fit within the PE header buffer.\n",
+				WORD numOfSections = (WORD)(_raw_header + _raw_header_size - base_sections - 1) / sizeof(IMAGE_SECTION_HEADER);
+				fprintf( stderr, "WARNING: module '%s' at %s. Number of sections being changed from %u to %u such that it will fit within the PE header buffer.\n",
 					this->get_name(), location,
 					_header_pe64->FileHeader.NumberOfSections,
-					( (_raw_header + _raw_header_size - base_sections - 1) / sizeof(IMAGE_SECTION_HEADER) )
+					numOfSections
 					);
-				_header_pe64->FileHeader.NumberOfSections = ( (_raw_header + _raw_header_size - base_sections - 1) / sizeof(IMAGE_SECTION_HEADER) );
+				_header_pe64->FileHeader.NumberOfSections = numOfSections;
 			}
 
 			this->_parsed_sections = true;
@@ -1331,7 +1332,7 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 				
 				
 				// Increase the size of the last section
-				_header_sections[_num_sections-1].Misc.VirtualSize = this->_section_align(_header_sections[_num_sections-1].Misc.VirtualSize, this->_header_pe32->OptionalHeader.SectionAlignment) + new_section_size;
+				_header_sections[_num_sections-1].Misc.VirtualSize = (DWORD)(this->_section_align(_header_sections[_num_sections-1].Misc.VirtualSize, this->_header_pe32->OptionalHeader.SectionAlignment) + new_section_size);
 				_header_sections[_num_sections-1].SizeOfRawData = _header_sections[_num_sections-1].Misc.VirtualSize;
 
 				larger_image_size = this->_section_align((long long) this->_image_size, this->_header_pe32->OptionalHeader.SectionAlignment) + new_section_size;
@@ -1349,8 +1350,8 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 					printf( "INFO: Updating import data directory.\n" );
 
 				// Update the PE header to refer to it
-				_header_pe32->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress = this->_section_align((long long) _image_size, this->_header_pe32->OptionalHeader.SectionAlignment);
-				_header_pe32->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size = descriptor_size;
+				_header_pe32->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress = (DWORD)this->_section_align((long long) _image_size, this->_header_pe32->OptionalHeader.SectionAlignment);
+				_header_pe32->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size = (DWORD)descriptor_size;
 			}
 			else
 			{
@@ -1363,7 +1364,7 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 			if( _original_base != 0 )
 			{
 				// Adjust the preferred image base, this way the relocations doesn't have to be fixed
-				_header_pe32->OptionalHeader.ImageBase = (DWORD) _original_base;
+				_header_pe32->OptionalHeader.ImageBase = PtrToUlong(_original_base);
 			}
 
 			// Change the physical alignment to use the virtual alignment
@@ -1410,7 +1411,7 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 				{
 					char location[FILEPATH_SIZE + 1];
 					_stream->get_location(location, FILEPATH_SIZE + 1);
-					DWORD new_size = larger_image_size - this->_header_sections[i].VirtualAddress;
+					DWORD new_size = (DWORD)(larger_image_size - this->_header_sections[i].VirtualAddress);
 					fprintf( stderr, "WARNING: module '%s' at %s. Large section size for section %i of %i being truncated to %i to fit within the image size. This could be as a result of a custom code to load a library by means other than LoadLibrary().\n",
 						this->get_name(), location, i, this->_header_sections[i].Misc.VirtualSize, new_size );
 					this->_header_sections[i].Misc.VirtualSize = new_size;
@@ -1535,7 +1536,7 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 				// Update the entrypoint
 				if (best_entrypoint != 0)
 				{
-					_header_pe64->OptionalHeader.AddressOfEntryPoint = best_entrypoint;
+					_header_pe64->OptionalHeader.AddressOfEntryPoint = (DWORD)best_entrypoint;
 					printf("INFO: Updated entrypoint to: %llx\n", best_entrypoint);
 				}
 			}
@@ -1608,8 +1609,8 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 					printf( "INFO: Updating import data directory.\n" );
 
 				// Update the PE header to refer to it
-				_header_pe64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress = this->_section_align((long long) this->_image_size, this->_header_pe64->OptionalHeader.SectionAlignment);
-				_header_pe64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size = descriptor_size;
+				_header_pe64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress = (DWORD)this->_section_align((long long) this->_image_size, this->_header_pe64->OptionalHeader.SectionAlignment);
+				_header_pe64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size = (DWORD)descriptor_size;
 			}
 			else
 			{
@@ -1669,7 +1670,7 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 				{
 					char location[FILEPATH_SIZE + 1];
 					_stream->get_location(location, FILEPATH_SIZE + 1);
-					DWORD new_size = larger_image_size - this->_header_sections[i].VirtualAddress;
+					DWORD new_size = (DWORD)(larger_image_size - this->_header_sections[i].VirtualAddress);
 					fprintf( stderr, "WARNING: module '%s' at %s. Large section size for section %i of 0x%x being truncated to 0x%x to fit within the image size. This could be as a result of a custom code to load a library by means other than LoadLibrary().\n",
 						this->get_name(), location, i, this->_header_sections[i].Misc.VirtualSize, new_size );
 					this->_header_sections[i].Misc.VirtualSize = new_size;

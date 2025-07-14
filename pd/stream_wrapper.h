@@ -18,7 +18,7 @@ public:
 	virtual SIZE_T get_long_name( char* out_name, SIZE_T out_name_size ) = 0;
 	virtual SIZE_T get_location( char* out_name, SIZE_T out_name_size ) = 0;
 	virtual __int64 get_address() = 0;
-	virtual __int64 estimate_section_size( long offset ) = 0;
+	virtual __int64 estimate_section_size( SIZE_T offset ) = 0;
 	virtual DWORD get_region_characteristics( long offset ) = 0;
 	virtual ~stream_wrapper() {}
 	virtual void update_base( __int64 rva ) = 0;
@@ -62,7 +62,7 @@ public:
 		return 0;
 	}
 
-	virtual __int64 estimate_section_size( long offset )
+	virtual __int64 estimate_section_size( SIZE_T offset )
 	{
 		return 0;
 	}
@@ -107,7 +107,7 @@ public:
 		if( opened )
 		{
 			if( !fseek( fh, 0, SEEK_END) )
-				return ftell( fh ) - offset;
+				return (SIZE_T)ftell( fh ) - offset;
 			else
 				PrintLastError(L"Seek failed.");
 		}
@@ -326,7 +326,7 @@ public:
 			else if(  blockSize == sizeof(_MEMORY_BASIC_INFORMATION32) )
 			{
 				_MEMORY_BASIC_INFORMATION32* mbi32 = (_MEMORY_BASIC_INFORMATION32*) &mbi;
-				return mbi32->RegionSize - offset;
+				return (SIZE_T)mbi32->RegionSize - offset;
 			}
 			else if( blockSize == 0 )
 			{
@@ -366,13 +366,13 @@ public:
 		return characteristics;
 	}
 
-	virtual __int64 estimate_section_size( long offset )
+	virtual __int64 estimate_section_size( SIZE_T offset )
 	{
 		// Estimate the section size according to the heap size and privilege level
 		if( opened )
 		{
 			_MEMORY_BASIC_INFORMATION64 mbi;
-			SIZE_T blockSize = VirtualQueryEx(ph, (LPCVOID) ((unsigned char*)base + (SIZE_T)offset), (_MEMORY_BASIC_INFORMATION*) &mbi, sizeof(_MEMORY_BASIC_INFORMATION64));
+			SIZE_T blockSize = VirtualQueryEx(ph, (LPCVOID) ((unsigned char*)base + offset), (_MEMORY_BASIC_INFORMATION*) &mbi, sizeof(_MEMORY_BASIC_INFORMATION64));
 
 			if( blockSize == sizeof(_MEMORY_BASIC_INFORMATION64) )
 			{

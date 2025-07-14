@@ -368,7 +368,7 @@ void dump_system(pe_hash_database* db, PD_OPTIONS* options)
 
 
 
-static bool global_flag_verbose = false;
+bool global_flag_verbose = false;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -473,7 +473,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				
 				// Extract the pid from the string
 				if( (isHex && swscanf(filter, L"%x", &pid) > 0) ||
-					(!isHex && swscanf(filter, L"%i", &pid) > 0))
+					(!isHex && swscanf(filter, L"%lu", &pid) > 0))
 				{
 					// Successfully parsed the PID
 					flagPidDump = true;
