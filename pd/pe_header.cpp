@@ -488,7 +488,7 @@ IMPORT_SUMMARY pe_header::get_imports_information( export_list* exports )
 	return get_imports_information( exports, _image_size );
 }
 
-IMPORT_SUMMARY pe_header::get_imports_information( export_list* exports, __int64 size_limit )
+IMPORT_SUMMARY pe_header::get_imports_information( export_list* exports, SIZE_T size_limit )
 {
 	// Builds a structure of information about the imports declared by this PE object. This includes:
 	//   # of different import addresses
@@ -518,7 +518,7 @@ IMPORT_SUMMARY pe_header::get_imports_information( export_list* exports, __int64
 		// Add matches to exports in this process
 		unsigned __int32 cand32_last = 0;
 		unsigned __int64 cand64_last = 0;
-		for(__int64 offset = 0; offset < _image_size - 8 && offset < size_limit - 8; offset+=4 )
+		for(unsigned __int64 offset = 0; offset < _image_size - 8 && offset < size_limit - 8; offset+=4 )
 		{
 			// Check if this 4-gram or 8-gram points to an export
 			unsigned __int32 cand32 = *((__int32*)(_image + offset));
@@ -696,7 +696,7 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 			_header_pe32->OptionalHeader.BaseOfCode=0x00002000;
 			_header_pe32->OptionalHeader.ImageBase= PtrToUlong(_original_base); // Set to current address
 			_header_pe32->OptionalHeader.SectionAlignment=0x00001000;
-			_header_pe32->OptionalHeader.FileAlignment=0x000001000;
+			_header_pe32->OptionalHeader.FileAlignment=0x400; //0x000001000;
 			_header_pe32->OptionalHeader.MajorOperatingSystemVersion=0x0004;
 			_header_pe32->OptionalHeader.MinorOperatingSystemVersion=0x0000;
 			_header_pe32->OptionalHeader.MajorImageVersion=0x0000;
@@ -735,7 +735,7 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 				_header_pe64->FileHeader.Characteristics = 0x0002; // Exe: 0x0002
 			else
 				_header_pe64->FileHeader.Characteristics = 0x2000; // Dll: 0x2000
-			_header_pe64->OptionalHeader.Magic= IMAGE_NT_OPTIONAL_HDR64_MAGIC;
+			_header_pe64->OptionalHeader.Magic = IMAGE_NT_OPTIONAL_HDR64_MAGIC;
 			_header_pe64->OptionalHeader.MajorLinkerVersion=0x08;
 			_header_pe64->OptionalHeader.MinorLinkerVersion=0x00;
 			_header_pe64->OptionalHeader.SizeOfCode=0x00000000;
@@ -747,7 +747,7 @@ bool pe_header::build_pe_header( __int64 size, bool amd64, int num_sections_limi
 			_header_pe64->OptionalHeader.BaseOfCode=0x00002000;
 			_header_pe64->OptionalHeader.ImageBase= (__int64)_original_base; // Set to current address
 			_header_pe64->OptionalHeader.SectionAlignment=0x00001000;
-			_header_pe64->OptionalHeader.FileAlignment=0x000001000;
+			_header_pe64->OptionalHeader.FileAlignment=0x400; //0x000001000;
 			_header_pe64->OptionalHeader.MajorOperatingSystemVersion=0x0004;
 			_header_pe64->OptionalHeader.MinorOperatingSystemVersion=0x0000;
 			_header_pe64->OptionalHeader.MajorImageVersion=0x0000;
@@ -981,7 +981,7 @@ bool pe_header::process_sections( )
 				image_size = _header_pe32->OptionalHeader.SizeOfImage;
 			
 			// Perform a sanity check on the resulting image size
-			if( image_size > MAX_SECTION_SIZE * (_num_sections+1)  )
+			if( image_size > MAX_SECTION_SIZE * ((DWORD)_num_sections+1)  )
 			{
 				char location[FILEPATH_SIZE + 1];
 				_stream->get_location(location, FILEPATH_SIZE + 1);
@@ -1142,7 +1142,7 @@ bool pe_header::process_sections( )
 				image_size = _header_pe64->OptionalHeader.SizeOfImage;
 			
 			// Perform a sanity check on the resulting image size
-			if( image_size > MAX_SECTION_SIZE * (_num_sections+1)  )
+			if( image_size > MAX_SECTION_SIZE * ((DWORD)_num_sections+1)  )
 			{
 				char location[FILEPATH_SIZE + 1];
 				_stream->get_location(location, FILEPATH_SIZE + 1);
@@ -1247,7 +1247,7 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 				// The entry-point looks invalid, search for candidates to reconstruct it
 				unsigned __int32 best_entrypoint = 0;
 
-				for (__int32 offset = 0x1000; offset < _image_size - 8; offset += 1)
+				for (unsigned __int32 offset = 0x1000; offset < _image_size - 8; offset += 1)
 				{
 					// Check if this is a possible entrypoint
 					unsigned __int64 cand = *((__int64*)(_image + offset));
@@ -1300,7 +1300,7 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 				// Add matches to exports in this process
 				int count = 0;
 				unsigned __int64 cand_last = 0;
-				for(__int64 offset = 0; offset < _image_size - 8; offset+=4 )
+				for(unsigned __int64 offset = 0; offset < _image_size - 8; offset+=4 )
 				{
 					// Check if this 4-gram or 8-gram points to an export
 					unsigned __int64 cand = *((__int32*)(_image + offset));
@@ -1505,7 +1505,7 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 				// The entry-point looks invalid, search for candidates to reconstruct it
 				unsigned __int64 best_entrypoint = 0;
 
-				for (__int64 offset = 0x1000; offset < _image_size - 8; offset += 1)
+				for (unsigned __int64 offset = 0x1000; offset < _image_size - 8; offset += 1)
 				{
 					// Check if this is a possible entrypoint
 					unsigned __int64 cand = *((__int64*)(_image + offset));
@@ -1558,7 +1558,7 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 				// Add matches to exports in this process
 				int count = 0;
 				unsigned __int64 cand_last = 0;
-				for(__int64 offset = 0; offset < _image_size - 8; offset+=4 )
+				for(unsigned __int64 offset = 0; offset < _image_size - 8; offset+=4 )
 				{
 					// Check if this 4-gram or 8-gram points to an export
 					unsigned __int64 cand = *((unsigned __int64*)(_image + offset));
@@ -1590,7 +1590,7 @@ bool pe_header::process_disk_image( export_list* exports, pe_hash_database* hash
 				
 				
 				// Increase the size of the last section
-				_header_sections[_num_sections-1].Misc.VirtualSize = this->_section_align(_header_sections[_num_sections-1].Misc.VirtualSize, this->_header_pe64->OptionalHeader.SectionAlignment) + new_section_size;
+				_header_sections[_num_sections-1].Misc.VirtualSize = this->_section_align(_header_sections[_num_sections-1].Misc.VirtualSize, this->_header_pe64->OptionalHeader.SectionAlignment) + (DWORD)new_section_size;
 				_header_sections[_num_sections-1].SizeOfRawData = _header_sections[_num_sections-1].Misc.VirtualSize;
 
 				larger_image_size = this->_section_align((long long) this->_image_size, this->_header_pe64->OptionalHeader.SectionAlignment) + new_section_size;

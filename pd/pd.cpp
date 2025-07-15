@@ -380,7 +380,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	char* epshort_database;
 	string path = ExePath();
 
-	clean_database = new char[ path.length() + strlen("clean.hashes") + 2 ];
+	clean_database = new char[path.length() + strlen("clean.hashes") + 2];
 	sprintf( clean_database, "%s\\%s", path.c_str() , "clean.hashes" );
 
 	ep_database = new char[path.length() + strlen("entrypoints.hashes") + 2];

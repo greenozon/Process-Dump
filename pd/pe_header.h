@@ -136,7 +136,7 @@ public:
 	unsigned __int64 get_hash_ep_short();
 
 	IMPORT_SUMMARY get_imports_information( export_list* exports );
-	IMPORT_SUMMARY get_imports_information( export_list* exports, __int64 size_limit );
+	IMPORT_SUMMARY get_imports_information( export_list* exports, SIZE_T size_limit );
 
 	bool write_image( char* filename );
 

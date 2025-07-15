@@ -466,7 +466,7 @@ public:
 						// Read in this whole or part of this region
 						bool success;
 
-						if( start_address + size - already_read >= mbi32->BaseAddress + mbi32->RegionSize )
+						if( start_address + size - already_read >= (SIZE_T)mbi32->BaseAddress + mbi32->RegionSize )
 						{
 							// Read in the whole region
 							success = ReadProcessMemory( ph,
